@@ -1,0 +1,50 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Visual Studio Build Tools
+        shell: pwsh
+        run: |
+          $vsInstallerUrl = "https://aka.ms/vs/17/release/vs_BuildTools.exe"
+          $vsInstallerPath = "$env:RUNNER_TEMP\vs_BuildTools.exe"
+          $installDir = "C:\MyVS"
+
+          Invoke-WebRequest $vsInstallerUrl -OutFile $vsInstallerPath
+
+          Start-Process -Wait -FilePath $vsInstallerPath -ArgumentList `
+            "--installPath `"$installDir`"", `
+            "--add Microsoft.VisualStudio.Workload.VCTools", `
+            "--add Microsoft.Net.Component.4.5.1.TargetingPack", `
+            "--includeRecommended", `
+            "--passive", "--norestart", "--wait"
+
+      - name: Set up MSVC environment
+        shell: cmd
+        run: |
+          call "C:\MyVS\VC\Auxiliary\Build\vcvars64.bat"
+
+      - name: Clone Celeste_Decompiled
+        run: git clone https://github.com/Twig6943/Celeste_Decompiled.git
+
+      - name: Build .csproj
+        shell: cmd
+        run: |
+          cd Celeste_Decompiled\Celeste
+          for /f "tokens=*" %%i in ('dir /b *.csproj') do (
+            "C:\MyVS\MSBuild\Current\Bin\MSBuild.exe" %%i /p:Configuration=Release
+          )
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: Binaries
+          path: Celeste_Decompiled\Celeste\bin\Release\
