@@ -22,6 +22,7 @@ jobs:
           Start-Process -Wait -FilePath $vsInstallerPath -ArgumentList `
             "--installPath `"$installDir`"", `
             "--add Microsoft.Net.ComponentGroup.TargetingPacks", `
+            "--add Microsoft.VisualStudio.Workload.VCTools", `
             "--add Microsoft.Net.Component.4.5.SDK", `
             "--add Microsoft.Net.Component.4.5.TargetingPack", `
             "--includeRecommended", `
