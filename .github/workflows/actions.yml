@@ -10,7 +10,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
       - name: Install Visual Studio Build Tools
         shell: pwsh
         run: |
@@ -22,8 +21,9 @@ jobs:
 
           Start-Process -Wait -FilePath $vsInstallerPath -ArgumentList `
             "--installPath `"$installDir`"", `
-            "--add Microsoft.VisualStudio.Workload.VCTools", `
-            "--add Microsoft.Net.Component.4.5.1.TargetingPack", `
+            "--add Microsoft.Net.ComponentGroup.TargetingPacks", `
+            "--add Microsoft.Net.Component.4.5.SDK", `
+            "--add Microsoft.Net.Component.4.5.TargetingPack", `
             "--includeRecommended", `
             "--passive", "--norestart", "--wait"
 
