@@ -27,11 +27,11 @@ jobs:
             "--includeRecommended", `
             "--passive", "--norestart", "--wait"
 
-      - name: Install .NET Framework 4.5 Developer Pack
+      - name: Install .NET Framework 4.5.1 Developer Pack
         shell: pwsh
         run: |
-          $url = "https://download.microsoft.com/download/6/F/5/6F5F486F-9D55-4D5F-90A5-774C58C72D0D/NDP45-DevPack-KB2872776-ENU.exe"
-          $devPack = "$env:RUNNER_TEMP\ndp45.exe"
+          $url = "https://download.microsoft.com/download/9/6/0/96075294-6820-4f01-924a-474e0023e407/NDP451-KB2861696-x86-x64-DevPack.exe"
+          $devPack = "$env:RUNNER_TEMP\ndp451.exe"
           Invoke-WebRequest $url -OutFile $devPack
           Start-Process -Wait -FilePath $devPack -ArgumentList "/quiet", "/norestart"
 
