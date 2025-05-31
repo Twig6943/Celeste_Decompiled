@@ -11,44 +11,36 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install Visual Studio Build Tools
+      - name: Install Visual Studio 2019 Build Tools with .NET 4.5 Targeting Pack
         shell: pwsh
         run: |
-          $vsInstallerUrl = "https://aka.ms/vs/17/release/vs_BuildTools.exe"
-          $vsInstallerPath = "$env:RUNNER_TEMP\vs_BuildTools.exe"
-          $installDir = "C:\MyVS"
+          $vsInstallerUrl = "https://aka.ms/vs/16/release/vs_buildtools.exe"
+          $vsInstallerPath = "$env:RUNNER_TEMP\vs_buildtools.exe"
+          $installDir = "C:\MyVS2019"
 
           Invoke-WebRequest $vsInstallerUrl -OutFile $vsInstallerPath
 
           Start-Process -Wait -FilePath $vsInstallerPath -ArgumentList `
             "--installPath `"$installDir`"", `
-            "--add Microsoft.Net.ComponentGroup.TargetingPacks", `
             "--add Microsoft.VisualStudio.Workload.VCTools", `
+            "--add Microsoft.Net.Component.4.5.TargetingPack", `
             "--includeRecommended", `
             "--passive", "--norestart", "--wait"
-
-      - name: Install .NET Framework 4.5.1 Developer Pack
-        shell: pwsh
-        run: |
-          $url = "https://download.microsoft.com/download/9/6/0/96075294-6820-4f01-924a-474e0023e407/NDP451-KB2861696-x86-x64-DevPack.exe"
-          $devPack = "$env:RUNNER_TEMP\ndp451.exe"
-          Invoke-WebRequest $url -OutFile $devPack
-          Start-Process -Wait -FilePath $devPack -ArgumentList "/quiet", "/norestart"
 
       - name: Set up MSVC environment
         shell: cmd
         run: |
-          call "C:\MyVS\VC\Auxiliary\Build\vcvars64.bat"
+          call "C:\MyVS2019\VC\Auxiliary\Build\vcvars64.bat"
 
       - name: Clone Celeste_Decompiled
         run: git clone https://github.com/Twig6943/Celeste_Decompiled.git
 
-      - name: Build .csproj
+      - name: Build .csproj files
         shell: cmd
         run: |
           cd Celeste_Decompiled\Celeste
           for %%i in (*.csproj) do (
-            "C:\MyVS\MSBuild\Current\Bin\MSBuild.exe" %%i /p:Configuration=Release
+            "C:\MyVS2019\MSBuild\Current\Bin\MSBuild.exe" %%i /p:Configuration=Release
           )
 
       - name: Upload binaries
@@ -56,3 +48,8 @@ jobs:
         with:
           name: Binaries
           path: Celeste_Decompiled\Celeste\bin\Release\
+
+      - name: Verify .NET Framework targeting packs installed
+        shell: pwsh
+        run: |
+          Get-ChildItem "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework" | Select-Object Name
