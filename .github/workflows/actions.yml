@@ -10,6 +10,7 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
       - name: Install Visual Studio Build Tools
         shell: pwsh
         run: |
@@ -23,10 +24,16 @@ jobs:
             "--installPath `"$installDir`"", `
             "--add Microsoft.Net.ComponentGroup.TargetingPacks", `
             "--add Microsoft.VisualStudio.Workload.VCTools", `
-            "--add Microsoft.Net.Component.4.5.SDK", `
-            "--add Microsoft.Net.Component.4.5.TargetingPack", `
             "--includeRecommended", `
             "--passive", "--norestart", "--wait"
+
+      - name: Install .NET Framework 4.5 Developer Pack
+        shell: pwsh
+        run: |
+          $url = "https://download.microsoft.com/download/6/F/5/6F5F486F-9D55-4D5F-90A5-774C58C72D0D/NDP45-DevPack-KB2872776-ENU.exe"
+          $devPack = "$env:RUNNER_TEMP\ndp45.exe"
+          Invoke-WebRequest $url -OutFile $devPack
+          Start-Process -Wait -FilePath $devPack -ArgumentList "/quiet", "/norestart"
 
       - name: Set up MSVC environment
         shell: cmd
@@ -40,7 +47,7 @@ jobs:
         shell: cmd
         run: |
           cd Celeste_Decompiled\Celeste
-          for /f "tokens=*" %%i in ('dir /b *.csproj') do (
+          for %%i in (*.csproj) do (
             "C:\MyVS\MSBuild\Current\Bin\MSBuild.exe" %%i /p:Configuration=Release
           )
 
