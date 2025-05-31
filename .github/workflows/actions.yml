@@ -27,13 +27,21 @@ jobs:
             "--includeRecommended", `
             "--passive", "--norestart", "--wait"
 
+      - name: Download nuget.exe
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe
+
+      - name: Restore NuGet packages
+        shell: cmd
+        run: |
+          cd Celeste_Decompiled\Celeste
+          ..\..\..\nuget.exe restore Celeste.csproj
+
       - name: Set up MSVC environment
         shell: cmd
         run: |
           call "C:\MyVS2019\VC\Auxiliary\Build\vcvars64.bat"
-
-      - name: Clone Celeste_Decompiled
-        run: git clone https://github.com/Twig6943/Celeste_Decompiled.git
 
       - name: Build .csproj files
         shell: cmd
@@ -48,8 +56,3 @@ jobs:
         with:
           name: Binaries
           path: Celeste_Decompiled\Celeste\bin\Release\
-
-      - name: Verify .NET Framework targeting packs installed
-        shell: pwsh
-        run: |
-          Get-ChildItem "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework" | Select-Object Name
